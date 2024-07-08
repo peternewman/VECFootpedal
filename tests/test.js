@@ -1,48 +1,46 @@
 const test = require('tape')
-const shuttle = require('../lib/Shuttle')
+const pedal = require('../lib/Footpedal')
 
-shuttle.on('connected', (deviceInfo) => {
+pedal.on('connected', (deviceInfo) => {
   console.log('Starting tests')
   console.log('Connected', deviceInfo.id, deviceInfo.path, deviceInfo.name)
-  test('shuttle test', (t) => {
-    t.plan(11)
+  test('pedal test', (t) => {
+    t.plan(8)
 
-    t.equal(deviceInfo.hasShuttle, true)
-    t.equal(deviceInfo.hasJog, true)
-    if (deviceInfo.name === 'ShuttleXpress') {
-      t.equal(deviceInfo.numButtons, 5)
-    } else if (deviceInfo.name === 'ShuttlePro v1') {
-      t.equal(deviceInfo.numButtons, 13)
-    } else if (deviceInfo.name === 'ShuttlePro v2') {
-      t.equal(deviceInfo.numButtons, 15)
+    if (deviceInfo.name === 'Footpedal') {
+      t.equal(deviceInfo.numButtons, 3)
     }
-    t.deepEqual(shuttle.getDeviceById(deviceInfo.id), deviceInfo)
-    t.equal(shuttle.getDeviceById("foo"), null)
-    t.deepEqual(shuttle.getDeviceByPath(deviceInfo.path), deviceInfo)
-    t.equal(shuttle.getDeviceByPath("/foo/bar"), null)
-    t.notLooseEqual(shuttle.getRawHidDevice(deviceInfo.id), null)
+    t.deepEqual(pedal.getDeviceById(deviceInfo.id), deviceInfo)
+    t.equal(pedal.getDeviceById("foo"), null)
+    t.deepEqual(pedal.getDeviceByPath(deviceInfo.path), deviceInfo)
+    t.equal(pedal.getDeviceByPath("/foo/bar"), null)
+    t.notLooseEqual(pedal.getRawHidDevice(deviceInfo.id), null)
     // Validate we've got the right raw HID device
-    t.match(shuttle.getRawHidDevice(deviceInfo.id).getDeviceInfo().manufacturer, /Contour/i)
-    t.match(shuttle.getRawHidDevice(deviceInfo.id).getDeviceInfo().product, /Shuttle/i)
-    t.equal(shuttle.getRawHidDevice("foo"), null)
+    t.match(pedal.getRawHidDevice(deviceInfo.id).getDeviceInfo().manufacturer, /VEC/i)
+    t.match(pedal.getRawHidDevice(deviceInfo.id).getDeviceInfo().product, /Footpedal/i)
+    t.equal(pedal.getRawHidDevice("foo"), null)
     console.log('Unplug device')
   })
 })
 
-shuttle.on('disconnected', (id) => {
+pedal.on('disconnected', (id) => {
   console.log('Disconnected', id)
-  if (shuttle.getDeviceList().length === 0) {
+  if (pedal.getDeviceList().length === 0) {
     console.log('Testing complete')
-    shuttle.stop()
+    pedal.stop()
   }
 })
 
-shuttle.on('buttonup', (button, id) => {
-  console.log('Shuttle button up', button, id)
+pedal.on('buttonup', (button, id) => {
+  console.log('Pedal button up', button, id)
 })
 
-shuttle.start()
+pedal.on('buttondown', (button, id) => {
+  console.log('Pedal button down', button, id)
+})
 
-if (shuttle.getDeviceList().length === 0) {
+pedal.start()
+
+if (pedal.getDeviceList().length === 0) {
   console.log('Plug device in')
 }
