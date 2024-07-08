@@ -1,1 +1,1 @@
-module.exports = require('./lib/Shuttle')
+module.exports = require('./lib/Footpedal')
